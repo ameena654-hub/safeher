@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SafeHer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+ul { list-style: none; }
+
+/* ===== CUSTOM PROPERTIES ===== */
+:root {
+  --color-bg: #0f0f14;
+  --color-surface: #1a1a24;
+  --color-surface2: #22222f;
+  --color-border: #2e2e3e;
+  --color-text: #f0f0f5;
+  --color-text-muted: #8888aa;
+  --color-emergency: #e53935;
+  --color-emergency-dark: #b71c1c;
+  --color-share: #00897b;
+  --color-share-dark: #00695c;
+  --color-fake: #7b1fa2;
+  --color-fake-dark: #4a148c;
+  --color-shake: #e65100;
+  --color-shake-dark: #bf360c;
+  --color-success: #43a047;
+  --color-warning: #f9a825;
+  --color-danger: #e53935;
+  --color-info: #1e88e5;
+  --color-primary: #7c4dff;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --transition: 0.2s ease;
+  --font: 'Inter', system-ui, sans-serif;
+}
+
+/* ===== BASE LAYOUT ===== */
+body {
+  font-family: var(--font);
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+section {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+section.active { display: flex; }
+
+/* ===== SCREEN HEADER ===== */
+.screen-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+  flex-shrink: 0;
+}
+.screen-header h1 { font-size: 1.2rem; font-weight: 700; flex: 1; }
+.screen-header h2 { font-size: 1.1rem; font-weight: 600; flex: 1; }
+.btn-back {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface2);
+  color: var(--color-text);
+  font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.btn-back:hover { background: var(--color-border); }
+
+/* ===== MAIN SCREEN ===== */
+#screen-main {
+  background: var(--color-bg);
+}
+.main-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  flex-shrink: 0;
+}
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff6b9d, #c44dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.main-nav { display: flex; gap: 8px; }
+.btn-nav {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--color-border);
+}
+.btn-nav:hover { background: var(--color-surface2); }
+
+/* ===== PERMISSION BANNER ===== */
+#permission-banner {
+  display: none;
+  background: #7f3a00;
+  border: 1px solid #e65100;
+  border-radius: var(--radius-sm);
+  margin: 0 16px 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: #ffe0b2;
+  flex-shrink: 0;
+}
+#permission-banner.visible { display: block; }
+
+/* ===== FEATURE BUTTONS GRID ===== */
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 12px 16px;
+  flex: 1;
+}
+.feature-btn {
+  min-height: 140px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 12px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), opacity var(--transition);
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.feature-btn:active { transform: scale(0.96); }
+.feature-btn.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.feature-btn .btn-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  display: block;
+}
+.feature-btn .btn-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.feature-btn .btn-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.feature-btn.active .btn-badge { opacity: 1; }
+
+#btn-emergency { background: linear-gradient(135deg, var(--color-emergency), var(--color-emergency-dark)); }
+#btn-share { background: linear-gradient(135deg, var(--color-share), var(--color-share-dark)); }
+#btn-fake-call { background: linear-gradient(135deg, var(--color-fake), var(--color-fake-dark)); }
+#btn-shake { background: linear-gradient(135deg, var(--color-shake), var(--color-shake-dark)); }
+
+/* ===== BOTTOM NAV HINT ===== */
+.main-footer {
+  padding: 12px 16px 20px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* ===== CONTACTS SCREEN ===== */
+.contacts-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.contact-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.contact-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.contact-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.contact-info { flex: 1; min-width: 0; }
+.contact-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex; align-items: center; gap: 6px;
+}
+.contact-phone { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 2px; }
+.contact-meta {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.badge-role { background: #1e2a3a; color: #90caf9; }
+.badge-primary { background: #3a2a00; color: #ffd54f; }
+.badge-verified { background: #1a3a1a; color: #81c784; }
+.badge-pending { background: #2a2a1a; color: #fff176; }
+.badge-expired { background: #3a1a1a; color: #ef9a9a; }
+.badge-unverified { background: var(--color-surface2); color: var(--color-text-muted); }
+.contact-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn-sm {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--color-surface2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.btn-sm:hover { background: var(--color-border); }
+.btn-sm.danger { background: #3a1a1a; color: #ef9a9a; border-color: #7a2a2a; }
+.btn-sm.primary { background: #1a1a3a; color: #90caf9; border-color: #2a2a7a; }
+
+/* ===== ADD CONTACT FORM ===== */
+.add-contact-section {
+  padding: 0 16px 16px;
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.form-group { margin-bottom: 12px; }
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-bottom: 5px;
+}
+.form-input, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.form-input.error { border-color: var(--color-danger); }
+.form-error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  margin-top: 4px;
+  display: none;
+}
+.form-error.visible { display: block; }
+.form-select option { background: var(--color-surface2); }
+.notif-prefs { display: flex; gap: 16px; }
+.notif-pref-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { opacity: 0.8; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+}
+.modal h3 { font-size: 1.1rem; margin-bottom: 10px; }
+.modal p { font-size: 0.88rem; color: var(--color-text-muted); margin-bottom: 20px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; }
+.btn-modal {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.btn-modal.cancel { background: var(--color-surface2); color: var(--color-text); border: 1px solid var(--color-border); }
+.btn-modal.confirm-danger { background: var(--color-danger); color: #fff; }
+.btn-modal.confirm { background: var(--color-primary); color: #fff; }
+
+/* ===== FAKE CALL SCREEN ===== */
+#screen-fake-call {
+  background: linear-gradient(180deg, #1a0a2e 0%, #0d0d1a 100%);
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.fake-call-status {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+.fake-call-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.fake-call-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 40px;
+}
+.fake-call-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-fake), var(--color-primary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  box-shadow: 0 0 40px rgba(123,31,162,0.5);
+}
+.fake-call-actions {
+  display: flex;
+  gap: 60px;
+  margin-top: 20px;
+}
+.call-action-btn {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px;
+  font-size: 1.5rem;
+  color: #fff;
+}
+.call-action-btn span { font-size: 0.7rem; font-weight: 500; }
+.btn-accept { background: var(--color-success); }
+.btn-decline { background: var(--color-danger); }
+
+/* ===== IN-CALL SCREEN ===== */
+#screen-in-call {
+  background: linear-gradient(180deg, #0a1a0a 0%, #0d0d1a 100%);
+  align-items: center;
+  justify-content: center;
+}
+.in-call-name { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+.in-call-timer {
+  font-size: 1.2rem;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 60px;
+}
+.in-call-avatar {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-success), #1b5e20);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+.btn-end-call {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ===== SETTINGS SCREEN ===== */
+.settings-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-section:last-child { border-bottom: none; }
+.settings-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  gap: 12px;
+}
+.setting-label { font-size: 0.9rem; font-weight: 500; }
+.setting-desc { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 2px; }
+.range-row { flex-direction: column; align-items: stretch; gap: 8px; }
+.range-header { display: flex; justify-content: space-between; align-items: center; }
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+  height: 4px;
+}
+input[type="text"], input[type="number"] {
+  padding: 8px 12px;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  width: 140px;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ===== TOGGLE SWITCH ===== */
+.toggle {
+  position: relative;
+  width: 48px; height: 26px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 26px;
+  transition: background var(--transition);
+  cursor: pointer;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--transition);
+}
+.toggle input:checked + .toggle-slider { background: var(--color-primary); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+/* ===== TOAST ===== */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  width: 90%;
+  max-width: 400px;
+}
+.toast {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  box-shadow: var(--shadow);
+  animation: slideUp 0.3s ease, fadeOut 0.4s ease 2.6s forwards;
+  pointer-events: auto;
+  text-align: center;
+  width: 100%;
+}
+.toast.success { border-color: var(--color-success); }
+.toast.error { border-color: var(--color-danger); }
+.toast.warning { border-color: var(--color-warning); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; pointer-events: none; }
+}
+
+/* ===== ALERT STATUS SCREEN ===== */
+.alert-status-list { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.delivery-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.delivery-icon { font-size: 1.2rem; }
+.delivery-name { font-size: 0.9rem; font-weight: 500; flex: 1; }
+.delivery-status { font-size: 0.8rem; font-weight: 600; }
+.delivery-status.sent { color: var(--color-success); }
+.delivery-status.failed { color: var(--color-danger); }
+.delivery-status.pending { color: var(--color-warning); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 12px;
+  color: var(--color-text-muted);
+}
+.empty-state .empty-icon { font-size: 3rem; }
+.empty-state p { font-size: 0.88rem; line-height: 1.5; }
+
+/* ===== EDIT CONTACT FORM ===== */
+.edit-form-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 90;
+  overflow-y: auto;
+  padding: 20px;
+}
+.edit-form-overlay.visible { display: block; }
+.edit-form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.edit-form-card h3 { margin-bottom: 16px; font-size: 1rem; }
+
+/* ===== PERMISSION PROMPT ===== */
+.permission-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 150;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.permission-prompt.visible { display: flex; }
+.permission-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  max-width: 360px;
+  text-align: center;
+}
+.permission-icon { font-size: 3rem; margin-bottom: 16px; }
+.permission-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+.permission-card p { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 20px; }
+.permission-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-allow {
+  padding: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.btn-deny {
+  padding: 10px;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* ===== SHAKE UNSUPPORTED ===== */
+.shake-unsupported-tooltip {
+  display: none;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 4px 8px;
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: rgba(0,0,0,0.7);
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== MAIN SCREEN ===== -->
+<section id="screen-main" class="active" role="main" aria-label="SafeHer Main Screen">
+  <div class="main-top">
+    <span class="app-title">SafeHer</span>
+    <nav class="main-nav" aria-label="App navigation">
+      <button class="btn-nav" id="btn-nav-contacts" aria-label="Contacts" title="Contacts">👥</button>
+      <button class="btn-nav" id="btn-nav-settings" aria-label="Settings" title="Settings">⚙️</button>
+    </nav>
+  </div>
+
+  <div id="permission-banner" role="alert" aria-live="polite">
+    📍 Location access denied. Emergency Alert, Share Location, and Shake-to-Alert are disabled.
+    <a href="#" id="banner-settings-link" style="color:#ffcc80;margin-left:6px;">Open Settings</a>
+  </div>
+
+  <div class="feature-grid" role="group" aria-label="Primary features">
+    <button class="feature-btn" id="btn-emergency" aria-label="Emergency Alert" aria-describedby="emergency-desc">
+      <span class="btn-icon" aria-hidden="true">🚨</span>
+      <span class="btn-label">Emergency Alert</span>
+      <span class="btn-badge" aria-hidden="true"></span>
+    </button>
+    <span id="emergency-desc" class="sr-only" style="display:none">Send emergency alert to all trusted contacts</span>
+
+    <button class="feature-btn" id="btn-share" aria-label="Share Location" aria-pressed="false">
+      <span class="btn-icon" aria-hidden="true">📍</span>
+      <span class="btn-label">Share Location</span>
+      <span class="btn-badge" aria-hidden="true"></span>
+    </button>
+
+    <button class="feature-btn" id="btn-fake-call" aria-label="Fake Call">
+      <span class="btn-icon" aria-hidden="true">📞</span>
+      <span class="btn-label">Fake Call</span>
+      <span class="btn-badge" aria-hidden="true"></span>
+    </button>
+
+    <button class="feature-btn" id="btn-shake" aria-label="Shake to Alert toggle" aria-pressed="false" style="position:relative">
+      <span class="btn-icon" aria-hidden="true">📳</span>
+      <span class="btn-label">Shake-to-Alert</span>
+      <span class="btn-badge" aria-hidden="true"></span>
+      <span class="shake-unsupported-tooltip" id="shake-tooltip">Not supported on this device</span>
+    </button>
+  </div>
+
+  <div class="main-footer">Tap a button to get started · All data stays on your device</div>
+</section>
+
+<!-- ===== CONTACTS SCREEN ===== -->
+<section id="screen-contacts" aria-label="Contacts Screen">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-contacts-back" aria-label="Back to main screen">←</button>
+    <h2>Trusted Contacts</h2>
+    <span id="contacts-count" style="font-size:0.8rem;color:var(--color-text-muted)">0/10</span>
+  </div>
+
+  <div id="contacts-list" class="contacts-list" aria-live="polite" aria-label="Contact list"></div>
+
+  <div class="add-contact-section">
+    <div class="section-title">Add Contact</div>
+    <div class="form-group">
+      <label class="form-label" for="contact-name">Name *</label>
+      <input class="form-input" type="text" id="contact-name" placeholder="Full name" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="contact-phone">Phone *</label>
+      <input class="form-input" type="tel" id="contact-phone" placeholder="+1 555 000 0000" autocomplete="off">
+      <div class="form-error" id="phone-error">Invalid phone number format</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="contact-role">Role</label>
+      <select class="form-select" id="contact-role">
+        <option value="Other">Other</option>
+        <option value="Family">Family</option>
+        <option value="Friend">Friend</option>
+        <option value="Colleague">Colleague</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notification Preferences</label>
+      <div class="notif-prefs">
+        <label class="notif-pref-label">
+          <input type="checkbox" id="pref-sms" checked> SMS
+        </label>
+        <label class="notif-pref-label">
+          <input type="checkbox" id="pref-push" checked> Push
+        </label>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-add-contact">Add Contact</button>
+  </div>
+</section>
+
+<!-- ===== FAKE CALL SCREEN ===== -->
+<section id="screen-fake-call" aria-label="Incoming Call Screen">
+  <div class="fake-call-status">Incoming Call</div>
+  <div class="fake-call-avatar" id="fake-call-avatar" aria-hidden="true">👩</div>
+  <div class="fake-call-name" id="fake-call-name">Mom</div>
+  <div class="fake-call-subtitle">Mobile · Calling...</div>
+  <div class="fake-call-actions">
+    <button class="call-action-btn btn-decline" id="btn-decline-call" aria-label="Decline call">
+      📵<span>Decline</span>
+    </button>
+    <button class="call-action-btn btn-accept" id="btn-accept-call" aria-label="Accept call">
+      📲<span>Accept</span>
+    </button>
+  </div>
+</section>
+
+<!-- ===== IN-CALL SCREEN ===== -->
+<section id="screen-in-call" aria-label="Active Call Screen">
+  <div class="in-call-avatar" aria-hidden="true">👩</div>
+  <div class="in-call-name" id="in-call-name">Mom</div>
+  <div class="in-call-timer" id="call-timer" aria-live="polite" aria-label="Call duration">00:00</div>
+  <button class="btn-end-call" id="btn-end-call" aria-label="End call">📵</button>
+</section>
+
+<!-- ===== SETTINGS SCREEN ===== -->
+<section id="screen-settings" aria-label="Settings Screen">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-settings-back" aria-label="Back to main screen">←</button>
+    <h2>Settings</h2>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Fake Call</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Caller Name</div>
+        <div class="setting-desc">Displayed on the fake call screen</div>
+      </div>
+      <input type="text" id="setting-caller-name" value="Mom" maxlength="30" aria-label="Caller name">
+    </div>
+    <div class="setting-row range-row">
+      <div class="range-header">
+        <div>
+          <div class="setting-label">Call Delay</div>
+          <div class="setting-desc">Seconds before call appears</div>
+        </div>
+        <span id="delay-value" style="font-weight:600;color:var(--color-primary)">5s</span>
+      </div>
+      <input type="range" id="setting-call-delay" min="0" max="60" value="5" aria-label="Call delay in seconds">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Location Sharing</div>
+    <div class="setting-row range-row">
+      <div class="range-header">
+        <div>
+          <div class="setting-label">Sharing Duration</div>
+          <div class="setting-desc">Minutes (15–480)</div>
+        </div>
+        <span id="duration-value" style="font-weight:600;color:var(--color-primary)">60 min</span>
+      </div>
+      <input type="range" id="setting-share-duration" min="15" max="480" value="60" aria-label="Sharing duration in minutes">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">About</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">SafeHer</div>
+        <div class="setting-desc">All data stored locally on your device</div>
+      </div>
+      <span style="font-size:0.8rem;color:var(--color-text-muted)">v1.0</span>
+    </div>
+    <div class="setting-row">
+      <button class="btn-sm danger" id="btn-clear-data" style="width:100%">Clear All Data</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="modal-remove-primary" role="dialog" aria-modal="true" aria-labelledby="modal-remove-title">
+  <div class="modal">
+    <h3 id="modal-remove-title">⚠️ Remove Primary Contact?</h3>
+    <p>This is your only trusted contact and is set as primary. Removing them means no one will receive emergency alerts. Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn-modal cancel" id="modal-remove-cancel">Cancel</button>
+      <button class="btn-modal confirm-danger" id="modal-remove-confirm">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-no-contacts" role="dialog" aria-modal="true" aria-labelledby="modal-nocontacts-title">
+  <div class="modal">
+    <h3 id="modal-nocontacts-title">No Contacts Added</h3>
+    <p>You need at least one trusted contact to send an emergency alert. Add a contact first.</p>
+    <div class="modal-actions">
+      <button class="btn-modal cancel" id="modal-nocontacts-close">Close</button>
+      <button class="btn-modal confirm" id="modal-nocontacts-add">Add Contact</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-alert-result" role="dialog" aria-modal="true" aria-labelledby="modal-alert-title">
+  <div class="modal" style="max-width:400px">
+    <h3 id="modal-alert-title">🚨 Alert Sent</h3>
+    <p id="modal-alert-location" style="margin-bottom:12px"></p>
+    <div id="modal-alert-deliveries" class="alert-status-list" style="padding:0;margin-bottom:16px"></div>
+    <div class="modal-actions">
+      <button class="btn-modal confirm" id="modal-alert-close">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-sms-preview" role="dialog" aria-modal="true" aria-labelledby="modal-sms-title">
+  <div class="modal">
+    <h3 id="modal-sms-title">📱 SMS Preview</h3>
+    <p id="modal-sms-body" style="font-family:monospace;font-size:0.82rem;background:var(--color-surface2);padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word;margin-bottom:16px"></p>
+    <div class="modal-actions">
+      <button class="btn-modal confirm" id="modal-sms-close">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Contact Overlay -->
+<div class="edit-form-overlay" id="edit-contact-overlay">
+  <div class="edit-form-card">
+    <h3>Edit Contact</h3>
+    <input type="hidden" id="edit-contact-id">
+    <div class="form-group">
+      <label class="form-label" for="edit-contact-name">Name *</label>
+      <input class="form-input" type="text" id="edit-contact-name" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="edit-contact-phone">Phone *</label>
+      <input class="form-input" type="tel" id="edit-contact-phone" autocomplete="off">
+      <div class="form-error" id="edit-phone-error">Invalid phone number format</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="edit-contact-role">Role</label>
+      <select class="form-select" id="edit-contact-role">
+        <option value="Other">Other</option>
+        <option value="Family">Family</option>
+        <option value="Friend">Friend</option>
+        <option value="Colleague">Colleague</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notification Preferences</label>
+      <div class="notif-prefs">
+        <label class="notif-pref-label"><input type="checkbox" id="edit-pref-sms"> SMS</label>
+        <label class="notif-pref-label"><input type="checkbox" id="edit-pref-push"> Push</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-modal cancel" id="btn-edit-cancel" style="flex:1">Cancel</button>
+      <button class="btn-modal confirm" id="btn-edit-save" style="flex:1">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Permission Prompt -->
+<div class="permission-prompt" id="permission-prompt-location" role="dialog" aria-modal="true">
+  <div class="permission-card">
+    <div class="permission-icon">📍</div>
+    <h3>Location Access</h3>
+    <p>SafeHer needs your location to send emergency alerts with your coordinates and to share your live location with trusted contacts.</p>
+    <div class="permission-actions">
+      <button class="btn-allow" id="btn-allow-location">Allow Location Access</button>
+      <button class="btn-deny" id="btn-deny-location">Not Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+
+// ============================================================
+// STORAGE SERVICE
+// ============================================================
+const StorageService = (() => {
+  const KEYS = {
+    CONTACTS: 'safeher_contacts',
+    SETTINGS: 'safeher_settings',
+    LAST_LOCATION: 'safeher_last_location',
+    ALERT_LOG: 'safeher_alert_log'
+  };
+
+  function save(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        showToast('⚠️ Storage full — data could not be saved', 'warning');
+      }
+    }
+  }
+
+  function load(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw === null || raw === undefined) return fallback;
+      return JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function remove(key) {
+    try { localStorage.removeItem(key); } catch (e) {}
+  }
+
+  return { save, load, remove, KEYS };
+})();
+
+// ============================================================
+// TOAST MANAGER
+// ============================================================
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), duration + 400);
+}
+
+// ============================================================
+// ROUTER / SCREEN MANAGER
+// ============================================================
+const Router = (() => {
+  let currentScreen = 'screen-main';
+
+  function showScreen(id) {
+    document.querySelectorAll('section').forEach(s => {
+      s.classList.remove('active');
+      s.setAttribute('aria-hidden', 'true');
+    });
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.add('active');
+      target.removeAttribute('aria-hidden');
+      currentScreen = id;
+    }
+  }
+
+  function getCurrent() { return currentScreen; }
+
+  return { showScreen, getCurrent };
+})();
+
+// ============================================================
+// GEO SERVICE
+// ============================================================
+const GeoService = (() => {
+  let lastKnown = null;
+
+  function _cachePosition(pos) {
+    lastKnown = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+      ts: Date.now()
+    };
+    StorageService.save(StorageService.KEYS.LAST_LOCATION, lastKnown);
+  }
+
+  function getCurrentPosition(timeoutMs = 5000) {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation not supported'));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => { _cachePosition(pos); resolve(pos.coords); },
+        err => reject(err),
+        { timeout: timeoutMs, enableHighAccuracy: true, maximumAge: 30000 }
+      );
+    });
+  }
+
+  function getLastKnown() {
+    if (lastKnown) return lastKnown;
+    const stored = StorageService.load(StorageService.KEYS.LAST_LOCATION, null);
+    if (stored) lastKnown = stored;
+    return lastKnown;
+  }
+
+  function watchPosition(cb) {
+    if (!navigator.geolocation) return null;
+    return navigator.geolocation.watchPosition(
+      pos => { _cachePosition(pos); cb(lastKnown, null); },
+      err => cb(null, err),
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    );
+  }
+
+  function clearWatch(id) {
+    if (id !== null && id !== undefined && navigator.geolocation) {
+      navigator.geolocation.clearWatch(id);
+    }
+  }
+
+  return { getCurrentPosition, getLastKnown, watchPosition, clearWatch };
+})();
+
+// ============================================================
+// CONTACTS MANAGER
+// ============================================================
+const ContactsManager = (() => {
+  const VALID_ROLES = ['Family', 'Friend', 'Colleague', 'Other'];
+  const MAX_CONTACTS = 10;
+
+  function _genId() {
+    return 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+  }
+
+  function getContacts() {
+    return StorageService.load(StorageService.KEYS.CONTACTS, []);
+  }
+
+  function _save(contacts) {
+    StorageService.save(StorageService.KEYS.CONTACTS, contacts);
+  }
+
+  function validatePhone(input) {
+    if (!input || typeof input !== 'string') return { valid: false, error: 'Phone number is required' };
+    const trimmed = input.trim();
+    if (!trimmed) return { valid: false, error: 'Phone number is required' };
+    if (!/^\+?[\d\s\-\(\)]+$/.test(trimmed)) return { valid: false, error: 'Invalid phone number format' };
+    if (!/\d/.test(trimmed)) return { valid: false, error: 'Phone number must contain at least one digit' };
+    return { valid: true };
+  }
+
+  function addContact(data) {
+    const contacts = getContacts();
+    if (contacts.length >= MAX_CONTACTS) {
+      throw new Error(`Maximum of ${MAX_CONTACTS} contacts allowed`);
+    }
+    const phoneCheck = validatePhone(data.phone);
+    if (!phoneCheck.valid) throw new Error(phoneCheck.error);
+
+    const role = VALID_ROLES.includes(data.role) ? data.role : 'Other';
+    const notificationPrefs = (data.notificationPrefs && data.notificationPrefs.length > 0)
+      ? data.notificationPrefs : ['sms', 'push'];
+
+    const contact = {
+      id: _genId(),
+      name: data.name || 'Unknown',
+      phone: data.phone.trim(),
+      role,
+      isPrimary: contacts.length === 0, // first contact auto-primary
+      notificationPrefs,
+      verification: { status: 'unverified' }
+    };
+    contacts.push(contact);
+    _save(contacts);
+    return contact;
+  }
+
+  function updateContact(id, data) {
+    const contacts = getContacts();
+    const idx = contacts.findIndex(c => c.id === id);
+    if (idx === -1) throw new Error('Contact not found');
+
+    if (data.phone !== undefined) {
+      const phoneCheck = validatePhone(data.phone);
+      if (!phoneCheck.valid) throw new Error(phoneCheck.error);
+      contacts[idx].phone = data.phone.trim();
+    }
+    if (data.name !== undefined) contacts[idx].name = data.name;
+    if (data.role !== undefined) {
+      contacts[idx].role = VALID_ROLES.includes(data.role) ? data.role : 'Other';
+    }
+    if (data.notificationPrefs !== undefined) {
+      contacts[idx].notificationPrefs = data.notificationPrefs.length > 0
+        ? data.notificationPrefs : ['sms', 'push'];
+    }
+    _save(contacts);
+    return contacts[idx];
+  }
+
+  function removeContact(id) {
+    const contacts = getContacts();
+    const filtered = contacts.filter(c => c.id !== id);
+    _save(filtered);
+  }
+
+  function setPrimary(id) {
+    const contacts = getContacts();
+    const target = contacts.find(c => c.id === id);
+    if (!target) throw new Error('Contact not found');
+    contacts.forEach(c => { c.isPrimary = (c.id === id); });
+    _save(contacts);
+  }
+
+  function initiateVerification(id) {
+    const contacts = getContacts();
+    const idx = contacts.findIndex(c => c.id === id);
+    if (idx === -1) throw new Error('Contact not found');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    contacts[idx].verification = { status: 'pending', code, sentAt: Date.now() };
+    _save(contacts);
+    // Simulate sending verification SMS
+    NotificationService.send(contacts[idx], {
+      type: 'verification',
+      body: `SafeHer verification code: ${code}. Reply with this code to confirm your number.`
+    });
+    return code;
+  }
+
+  function checkVerificationExpiry() {
+    const contacts = getContacts();
+    let changed = false;
+    const now = Date.now();
+    contacts.forEach(c => {
+      if (c.verification.status === 'pending' && c.verification.sentAt) {
+        if (now - c.verification.sentAt > 24 * 60 * 60 * 1000) {
+          c.verification.status = 'expired';
+          changed = true;
+        }
+      }
+    });
+    if (changed) _save(contacts);
+  }
+
+  return {
+    getContacts, addContact, updateContact, removeContact,
+    setPrimary, initiateVerification, validatePhone, checkVerificationExpiry,
+    VALID_ROLES, MAX_CONTACTS
+  };
+})();
+
+// ============================================================
+// NOTIFICATION SERVICE
+// ============================================================
+const NotificationService = (() => {
+  let _permission = 'default';
+
+  async function requestPermission() {
+    if (!('Notification' in window)) return 'denied';
+    if (Notification.permission === 'granted') { _permission = 'granted'; return 'granted'; }
+    if (Notification.permission === 'denied') { _permission = 'denied'; return 'denied'; }
+    try {
+      _permission = await Notification.requestPermission();
+    } catch (e) { _permission = 'denied'; }
+    return _permission;
+  }
+
+  function _showSMSPreview(body) {
+    document.getElementById('modal-sms-body').textContent = body;
+    document.getElementById('modal-sms-preview').classList.add('visible');
+  }
+
+  function _sendPush(contact, message) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      new Notification(`SafeHer — ${contact.name}`, {
+        body: message.body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🛡️</text></svg>',
+        tag: `safeher-${message.type}-${contact.id}`
+      });
+    } catch (e) { /* silent */ }
+  }
+
+  async function send(contact, message) {
+    const prefs = (contact.notificationPrefs && contact.notificationPrefs.length > 0)
+      ? contact.notificationPrefs : ['sms', 'push'];
+
+    const results = [];
+    if (prefs.includes('sms')) {
+      _showSMSPreview(`To: ${contact.phone}\n\n${message.body}`);
+      results.push({ method: 'sms', status: 'sent' });
+    }
+    if (prefs.includes('push')) {
+      _sendPush(contact, message);
+      results.push({ method: 'push', status: 'sent' });
+    }
+    return { contactId: contact.id, results };
+  }
+
+  return { requestPermission, send };
+})();
+
+// ============================================================
+// EMERGENCY ALERT
+// ============================================================
+const EmergencyAlert = (() => {
+  const MAX_RETRIES = 3;
+  const RETRY_INTERVAL = 30000;
+
+  function _buildMessage(location, stale) {
+    let locStr = 'Location unavailable';
+    let mapsLink = '';
+    if (location) {
+      locStr = `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+      mapsLink = `https://maps.google.com/?q=${location.lat},${location.lng}`;
+    }
+    const staleNote = stale ? ' (⚠️ location may be outdated)' : '';
+    return `🚨 EMERGENCY ALERT from SafeHer\n\nI need help! My location${staleNote}:\n${locStr}\n${mapsLink ? `\nView on map: ${mapsLink}` : ''}\n\nPlease contact me or emergency services immediately.`;
+  }
+
+  async function _attemptDelivery(contact, message) {
+    try {
+      await NotificationService.send(contact, { type: 'emergency', body: message });
+      return { contactId: contact.id, status: 'sent', attempts: 1 };
+    } catch (e) {
+      return { contactId: contact.id, status: 'failed', attempts: 1 };
+    }
+  }
+
+  function _retryDelivery(contact, message, attemptsLeft, deliveryRecord) {
+    if (attemptsLeft <= 0) return;
+    setTimeout(async () => {
+      try {
+        await NotificationService.send(contact, { type: 'emergency', body: message });
+        deliveryRecord.status = 'sent';
+        deliveryRecord.attempts++;
+      } catch (e) {
+        deliveryRecord.attempts++;
+        _retryDelivery(contact, message, attemptsLeft - 1, deliveryRecord);
+      }
+    }, RETRY_INTERVAL);
+  }
+
+  async function triggerAlert() {
+    const contacts = ContactsManager.getContacts();
+    if (contacts.length === 0) {
+      return { error: 'no_contacts', sent: [], failed: [], location: null, locationStale: false };
+    }
+
+    let location = null;
+    let locationStale = false;
+
+    try {
+      location = await GeoService.getCurrentPosition(5000);
+      location = { lat: location.latitude, lng: location.longitude, accuracy: location.accuracy };
+    } catch (e) {
+      const last = GeoService.getLastKnown();
+      if (last) { location = last; locationStale = true; }
+      else { locationStale = true; }
+    }
+
+    const message = _buildMessage(location, locationStale);
+    const deliveries = [];
+
+    const results = await Promise.allSettled(
+      contacts.map(c => _attemptDelivery(c, message))
+    );
+
+    results.forEach((r, i) => {
+      const contact = contacts[i];
+      if (r.status === 'fulfilled') {
+        deliveries.push(r.value);
+        if (r.value.status === 'failed') {
+          _retryDelivery(contact, message, MAX_RETRIES, r.value);
+        }
+      } else {
+        const rec = { contactId: contact.id, status: 'failed', attempts: 1 };
+        deliveries.push(rec);
+        _retryDelivery(contact, message, MAX_RETRIES, rec);
+      }
+    });
+
+    const alertResult = {
+      timestamp: Date.now(),
+      location,
+      locationStale,
+      deliveries
+    };
+
+    const log = StorageService.load(StorageService.KEYS.ALERT_LOG, []);
+    log.push(alertResult);
+    StorageService.save(StorageService.KEYS.ALERT_LOG, log);
+
+    return alertResult;
+  }
+
+  return { triggerAlert };
+})();
+
+// ============================================================
+// LOCATION SHARING
+// ============================================================
+const LocationSharing = (() => {
+  let _active = false;
+  let _watchId = null;
+  let _broadcastTimer = null;
+  let _autoStopTimer = null;
+  let _lastBroadcast = 0;
+  let _paused = false;
+  const BROADCAST_INTERVAL = 30000;
+
+  function isActive() { return _active; }
+
+  function _buildLocationMessage(location, isInitial) {
+    const viewerLink = `https://maps.google.com/?q=${location.lat},${location.lng}`;
+    if (isInitial) {
+      return `📍 SafeHer Live Location Sharing started.\n\nTrack my location: ${viewerLink}\n\nI'll send updates every 30 seconds.`;
+    }
+    return `📍 SafeHer Location Update\n\nMy current location:\n${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}\n\nView: ${viewerLink}`;
+  }
+
+  function _broadcast(location, isInitial = false) {
+    const contacts = ContactsManager.getContacts();
+    const message = _buildLocationMessage(location, isInitial);
+    contacts.forEach(c => {
+      NotificationService.send(c, { type: 'location-update', body: message, location });
+    });
+    _lastBroadcast = Date.now();
+  }
+
+  function startSharing(durationMs) {
+    const minMs = 15 * 60 * 1000;
+    const maxMs = 480 * 60 * 1000;
+    if (durationMs < minMs || durationMs > maxMs) {
+      throw new Error('Duration must be between 15 and 480 minutes');
+    }
+    if (_active) stopSharing();
+
+    _active = true;
+    _paused = false;
+    _updateShareBtn();
+
+    _watchId = GeoService.watchPosition((location, err) => {
+      if (err) {
+        if (!_paused) {
+          _paused = true;
+          showToast('📍 Location updates paused — GPS unavailable', 'warning');
+        }
+        return;
+      }
+      if (_paused) {
+        _paused = false;
+        showToast('📍 Location sharing resumed', 'success');
+      }
+      const now = Date.now();
+      if (location && (now - _lastBroadcast >= BROADCAST_INTERVAL || _lastBroadcast === 0)) {
+        _broadcast(location, _lastBroadcast === 0);
+      }
+    });
+
+    _autoStopTimer = setTimeout(() => {
+      stopSharing();
+      showToast('📍 Location sharing ended (time limit reached)', 'info');
+    }, durationMs);
+  }
+
+  function stopSharing() {
+    _active = false;
+    _paused = false;
+    if (_watchId !== null) { GeoService.clearWatch(_watchId); _watchId = null; }
+    if (_broadcastTimer) { clearInterval(_broadcastTimer); _broadcastTimer = null; }
+    if (_autoStopTimer) { clearTimeout(_autoStopTimer); _autoStopTimer = null; }
+    _lastBroadcast = 0;
+    _updateShareBtn();
+  }
+
+  function _updateShareBtn() {
+    const btn = document.getElementById('btn-share');
+    if (!btn) return;
+    if (_active) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      btn.querySelector('.btn-label').textContent = 'Sharing...';
+    } else {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+      btn.querySelector('.btn-label').textContent = 'Share Location';
+    }
+  }
+
+  return { startSharing, stopSharing, isActive };
+})();
+
+// ============================================================
+// FAKE CALL
+// ============================================================
+const FakeCall = (() => {
+  let _scheduleTimer = null;
+  let _callTimer = null;
+  let _callSeconds = 0;
+  let _audioCtx = null;
+  let _ringtoneNodes = [];
+
+  function _getCallerName() {
+    const settings = StorageService.load(StorageService.KEYS.SETTINGS, {});
+    return settings.fakeCallName || 'Mom';
+  }
+
+  function _startRingtone() {
+    try {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function playTone(freq, startTime, duration) {
+        const osc = _audioCtx.createOscillator();
+        const gain = _audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(_audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+        _ringtoneNodes.push(osc);
+      }
+      const now = _audioCtx.currentTime;
+      // Simple ringtone pattern
+      for (let i = 0; i < 4; i++) {
+        playTone(880, now + i * 0.5, 0.2);
+        playTone(1100, now + i * 0.5 + 0.25, 0.2);
+      }
+    } catch (e) { /* silent fallback */ }
+  }
+
+  function _stopRingtone() {
+    try {
+      _ringtoneNodes.forEach(n => { try { n.stop(); } catch(e){} });
+      _ringtoneNodes = [];
+      if (_audioCtx) { _audioCtx.close(); _audioCtx = null; }
+    } catch (e) {}
+  }
+
+  function scheduleFakeCall(delayMs) {
+    if (delayMs < 0 || delayMs > 60000) {
+      throw new Error('Delay must be between 0 and 60 seconds');
+    }
+    if (_scheduleTimer) clearTimeout(_scheduleTimer);
+    _scheduleTimer = setTimeout(() => {
+      const name = _getCallerName();
+      document.getElementById('fake-call-name').textContent = name;
+      document.getElementById('in-call-name').textContent = name;
+      Router.showScreen('screen-fake-call');
+      _startRingtone();
+    }, delayMs);
+  }
+
+  function acceptCall() {
+    _stopRingtone();
+    _callSeconds = 0;
+    Router.showScreen('screen-in-call');
+    _callTimer = setInterval(() => {
+      _callSeconds++;
+      const m = String(Math.floor(_callSeconds / 60)).padStart(2, '0');
+      const s = String(_callSeconds % 60).padStart(2, '0');
+      const el = document.getElementById('call-timer');
+      if (el) el.textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  function declineCall() {
+    _stopRingtone();
+    if (_scheduleTimer) { clearTimeout(_scheduleTimer); _scheduleTimer = null; }
+    Router.showScreen('screen-main');
+  }
+
+  function endCall() {
+    _stopRingtone();
+    if (_callTimer) { clearInterval(_callTimer); _callTimer = null; }
+    _callSeconds = 0;
+    const el = document.getElementById('call-timer');
+    if (el) el.textContent = '00:00';
+    Router.showScreen('screen-main');
+  }
+
+  return { scheduleFakeCall, acceptCall, declineCall, endCall };
+})();
+
+// ============================================================
+// SHAKE DETECTOR
+// ============================================================
+const ShakeDetector = (() => {
+  let _enabled = false;
+  let _shakeStart = null;
+  let _listener = null;
+  let _shakeCallbacks = [];
+  let _alertInProgress = false;
+  const THRESHOLD = 24.5; // m/s² (~2.5g)
+  const DURATION = 500;   // ms
+
+  function onShake(cb) { _shakeCallbacks.push(cb); }
+
+  function _handleMotion(e) {
+    const acc = e.accelerationIncludingGravity || e.acceleration;
+    if (!acc) return;
+    const x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
+    const magnitude = Math.sqrt(x*x + y*y + z*z);
+
+    if (magnitude > THRESHOLD) {
+      if (!_shakeStart) _shakeStart = Date.now();
+      else if (Date.now() - _shakeStart >= DURATION) {
+        _shakeStart = null;
+        if (!_alertInProgress) {
+          _alertInProgress = true;
+          _shakeCallbacks.forEach(cb => cb());
+          setTimeout(() => { _alertInProgress = false; }, 5000);
+        }
+      }
+    } else {
+      _shakeStart = null;
+    }
+  }
+
+  function enable() {
+    if (_enabled) return;
+    if (!window.DeviceMotionEvent) return;
+
+    const doEnable = () => {
+      _listener = _handleMotion.bind(this);
+      window.addEventListener('devicemotion', _listener);
+      _enabled = true;
+      _saveState();
+      _updateUI();
+    };
+
+    // iOS 13+ requires permission
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission()
+        .then(perm => {
+          if (perm === 'granted') doEnable();
+          else {
+            showToast('Motion permission denied — Shake-to-Alert unavailable', 'error');
+            _updateUI();
+          }
+        })
+        .catch(() => showToast('Could not request motion permission', 'error'));
+    } else {
+      doEnable();
+    }
+  }
+
+  function disable() {
+    if (_listener) {
+      window.removeEventListener('devicemotion', _listener);
+      _listener = null;
+    }
+    _enabled = false;
+    _saveState();
+    _updateUI();
+  }
+
+  function isEnabled() { return _enabled; }
+
+  function _saveState() {
+    const settings = StorageService.load(StorageService.KEYS.SETTINGS, {});
+    settings.shakeEnabled = _enabled;
+    StorageService.save(StorageService.KEYS.SETTINGS, settings);
+  }
+
+  function _updateUI() {
+    const btn = document.getElementById('btn-shake');
+    if (!btn) return;
+    if (_enabled) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  function init() {
+    if (!window.DeviceMotionEvent) {
+      const btn = document.getElementById('btn-shake');
+      if (btn) {
+        btn.classList.add('disabled');
+        const tooltip = document.getElementById('shake-tooltip');
+        if (tooltip) tooltip.style.display = 'block';
+      }
+    }
+    // Check battery
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        if (battery.level < 0.1) {
+          showToast('🔋 Battery below 10% — Shake-to-Alert may be restricted by the OS', 'warning', 5000);
+        }
+        battery.addEventListener('levelchange', () => {
+          if (battery.level < 0.1 && _enabled) {
+            showToast('🔋 Battery below 10% — Shake-to-Alert may be restricted by the OS', 'warning', 5000);
+          }
+        });
+      }).catch(() => {});
+    }
+  }
+
+  return { enable, disable, isEnabled, onShake, init };
+})();
+
+// ============================================================
+// PERMISSIONS FLOW
+// ============================================================
+const PermissionsManager = (() => {
+  let _locationGranted = null;
+
+  function _isFirstLaunch() {
+    return StorageService.load('safeher_first_launch_done', false) === false;
+  }
+
+  function _markLaunched() {
+    StorageService.save('safeher_first_launch_done', true);
+  }
+
+  function _disableLocationFeatures() {
+    ['btn-emergency', 'btn-share', 'btn-shake'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.add('disabled');
+    });
+    const banner = document.getElementById('permission-banner');
+    if (banner) banner.classList.add('visible');
+  }
+
+  function _enableLocationFeatures() {
+    ['btn-emergency', 'btn-share', 'btn-shake'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.remove('disabled');
+    });
+    const banner = document.getElementById('permission-banner');
+    if (banner) banner.classList.remove('visible');
+  }
+
+  async function checkLocationPermission() {
+    if (!navigator.permissions) return;
+    try {
+      const result = await navigator.permissions.query({ name: 'geolocation' });
+      _locationGranted = result.state === 'granted';
+      if (result.state === 'denied') _disableLocationFeatures();
+      result.addEventListener('change', () => {
+        _locationGranted = result.state === 'granted';
+        if (result.state === 'denied') _disableLocationFeatures();
+        else _enableLocationFeatures();
+      });
+    } catch (e) {}
+  }
+
+  function requestLocationPermission() {
+    return new Promise(resolve => {
+      const prompt = document.getElementById('permission-prompt-location');
+      prompt.classList.add('visible');
+
+      document.getElementById('btn-allow-location').onclick = () => {
+        prompt.classList.remove('visible');
+        // Trigger actual geolocation request
+        navigator.geolocation && navigator.geolocation.getCurrentPosition(
+          () => { _locationGranted = true; _enableLocationFeatures(); resolve(true); },
+          () => { _locationGranted = false; _disableLocationFeatures(); resolve(false); },
+          { timeout: 10000 }
+        );
+      };
+
+      document.getElementById('btn-deny-location').onclick = () => {
+        prompt.classList.remove('visible');
+        _locationGranted = false;
+        _disableLocationFeatures();
+        resolve(false);
+      };
+    });
+  }
+
+  async function init() {
+    await checkLocationPermission();
+    if (_isFirstLaunch()) {
+      _markLaunched();
+      if (_locationGranted === null) {
+        await requestLocationPermission();
+      }
+    }
+  }
+
+  function isLocationGranted() { return _locationGranted; }
+
+  return { init, isLocationGranted, checkLocationPermission };
+})();
+
+// ============================================================
+// CONTACTS SCREEN UI
+// ============================================================
+const ContactsUI = (() => {
+  let _pendingRemoveId = null;
+
+  function _verificationBadge(v) {
+    if (!v) return '<span class="badge badge-unverified">Unverified</span>';
+    switch (v.status) {
+      case 'verified': return '<span class="badge badge-verified">✓ Verified</span>';
+      case 'pending': return '<span class="badge badge-pending">⏳ Pending</span>';
+      case 'expired': return '<span class="badge badge-expired">⚠ Expired</span>';
+      default: return '<span class="badge badge-unverified">Unverified</span>';
+    }
+  }
+
+  function renderContacts() {
+    ContactsManager.checkVerificationExpiry();
+    const contacts = ContactsManager.getContacts();
+    const list = document.getElementById('contacts-list');
+    const countEl = document.getElementById('contacts-count');
+    if (countEl) countEl.textContent = `${contacts.length}/10`;
+
+    if (contacts.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <p>No trusted contacts yet.<br>Add someone below to get started.</p>
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = contacts.map(c => `
+      <div class="contact-card" data-id="${c.id}">
+        <div class="contact-card-header">
+          <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+          <div class="contact-info">
+            <div class="contact-name">
+              ${c.name}
+              ${c.isPrimary ? '<span title="Primary Contact">⭐</span>' : ''}
+            </div>
+            <div class="contact-phone">${c.phone}</div>
+          </div>
+        </div>
+        <div class="contact-meta">
+          <span class="badge badge-role">${c.role}</span>
+          ${c.isPrimary ? '<span class="badge badge-primary">Primary</span>' : ''}
+          ${_verificationBadge(c.verification)}
+        </div>
+        <div class="contact-actions">
+          <button class="btn-sm" onclick="ContactsUI.editContact('${c.id}')">Edit</button>
+          <button class="btn-sm danger" onclick="ContactsUI.confirmRemove('${c.id}')">Remove</button>
+          ${!c.isPrimary ? `<button class="btn-sm primary" onclick="ContactsUI.makePrimary('${c.id}')">Set Primary</button>` : ''}
+          <button class="btn-sm" onclick="ContactsUI.verifyContact('${c.id}')">
+            ${c.verification && c.verification.status === 'pending' ? 'Re-verify' : 'Verify'}
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function editContact(id) {
+    const contacts = ContactsManager.getContacts();
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('edit-contact-id').value = id;
+    document.getElementById('edit-contact-name').value = c.name;
+    document.getElementById('edit-contact-phone').value = c.phone;
+    document.getElementById('edit-contact-role').value = c.role;
+    document.getElementById('edit-pref-sms').checked = c.notificationPrefs.includes('sms');
+    document.getElementById('edit-pref-push').checked = c.notificationPrefs.includes('push');
+    document.getElementById('edit-phone-error').classList.remove('visible');
+    document.getElementById('edit-contact-overlay').classList.add('visible');
+  }
+
+  function confirmRemove(id) {
+    const contacts = ContactsManager.getContacts();
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+    _pendingRemoveId = id;
+    // Show warning if removing sole primary
+    if (c.isPrimary && contacts.length === 1) {
+      document.getElementById('modal-remove-primary').classList.add('visible');
+    } else {
+      _doRemove(id);
+    }
+  }
+
+  function _doRemove(id) {
+    ContactsManager.removeContact(id);
+    renderContacts();
+    showToast('Contact removed', 'info');
+  }
+
+  function makePrimary(id) {
+    ContactsManager.setPrimary(id);
+    renderContacts();
+    showToast('Primary contact updated ⭐', 'success');
+  }
+
+  function verifyContact(id) {
+    try {
+      ContactsManager.initiateVerification(id);
+      renderContacts();
+      showToast('Verification message sent', 'success');
+    } catch (e) {
+      showToast('Could not initiate verification', 'error');
+    }
+  }
+
+  function init() {
+    // Add contact form
+    document.getElementById('btn-add-contact').addEventListener('click', () => {
+      const name = document.getElementById('contact-name').value.trim();
+      const phone = document.getElementById('contact-phone').value.trim();
+      const role = document.getElementById('contact-role').value;
+      const prefs = [];
+      if (document.getElementById('pref-sms').checked) prefs.push('sms');
+      if (document.getElementById('pref-push').checked) prefs.push('push');
+
+      const phoneErr = document.getElementById('phone-error');
+      const phoneInput = document.getElementById('contact-phone');
+
+      if (!name) { showToast('Please enter a name', 'error'); return; }
+
+      const validation = ContactsManager.validatePhone(phone);
+      if (!validation.valid) {
+        phoneErr.textContent = validation.error || 'Invalid phone number';
+        phoneErr.classList.add('visible');
+        phoneInput.classList.add('error');
+        return;
+      }
+      phoneErr.classList.remove('visible');
+      phoneInput.classList.remove('error');
+
+      try {
+        ContactsManager.addContact({ name, phone, role, notificationPrefs: prefs });
+        document.getElementById('contact-name').value = '';
+        document.getElementById('contact-phone').value = '';
+        document.getElementById('contact-role').value = 'Other';
+        document.getElementById('pref-sms').checked = true;
+        document.getElementById('pref-push').checked = true;
+        renderContacts();
+        showToast(`${name} added as trusted contact`, 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    // Phone input live validation
+    document.getElementById('contact-phone').addEventListener('input', function() {
+      const err = document.getElementById('phone-error');
+      const v = ContactsManager.validatePhone(this.value);
+      if (!v.valid && this.value.trim()) {
+        err.textContent = v.error;
+        err.classList.add('visible');
+        this.classList.add('error');
+      } else {
+        err.classList.remove('visible');
+        this.classList.remove('error');
+      }
+    });
+
+    // Remove primary modal
+    document.getElementById('modal-remove-cancel').addEventListener('click', () => {
+      document.getElementById('modal-remove-primary').classList.remove('visible');
+      _pendingRemoveId = null;
+    });
+    document.getElementById('modal-remove-confirm').addEventListener('click', () => {
+      document.getElementById('modal-remove-primary').classList.remove('visible');
+      if (_pendingRemoveId) { _doRemove(_pendingRemoveId); _pendingRemoveId = null; }
+    });
+
+    // Edit form
+    document.getElementById('btn-edit-cancel').addEventListener('click', () => {
+      document.getElementById('edit-contact-overlay').classList.remove('visible');
+    });
+    document.getElementById('btn-edit-save').addEventListener('click', () => {
+      const id = document.getElementById('edit-contact-id').value;
+      const name = document.getElementById('edit-contact-name').value.trim();
+      const phone = document.getElementById('edit-contact-phone').value.trim();
+      const role = document.getElementById('edit-contact-role').value;
+      const prefs = [];
+      if (document.getElementById('edit-pref-sms').checked) prefs.push('sms');
+      if (document.getElementById('edit-pref-push').checked) prefs.push('push');
+
+      const phoneErr = document.getElementById('edit-phone-error');
+      const v = ContactsManager.validatePhone(phone);
+      if (!v.valid) {
+        phoneErr.textContent = v.error;
+        phoneErr.classList.add('visible');
+        return;
+      }
+      phoneErr.classList.remove('visible');
+
+      try {
+        ContactsManager.updateContact(id, { name, phone, role, notificationPrefs: prefs });
+        document.getElementById('edit-contact-overlay').classList.remove('visible');
+        renderContacts();
+        showToast('Contact updated', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    // Edit phone live validation
+    document.getElementById('edit-contact-phone').addEventListener('input', function() {
+      const err = document.getElementById('edit-phone-error');
+      const v = ContactsManager.validatePhone(this.value);
+      if (!v.valid && this.value.trim()) {
+        err.textContent = v.error;
+        err.classList.add('visible');
+      } else {
+        err.classList.remove('visible');
+      }
+    });
+  }
+
+  return { renderContacts, editContact, confirmRemove, makePrimary, verifyContact, init };
+})();
+
+// ============================================================
+// SETTINGS UI
+// ============================================================
+const SettingsUI = (() => {
+  function loadSettings() {
+    const s = StorageService.load(StorageService.KEYS.SETTINGS, {});
+    const callerName = document.getElementById('setting-caller-name');
+    const callDelay = document.getElementById('setting-call-delay');
+    const shareDuration = document.getElementById('setting-share-duration');
+
+    if (callerName) callerName.value = s.fakeCallName || 'Mom';
+    if (callDelay) {
+      callDelay.value = s.fakeCallDelay !== undefined ? s.fakeCallDelay : 5;
+      document.getElementById('delay-value').textContent = `${callDelay.value}s`;
+    }
+    if (shareDuration) {
+      shareDuration.value = s.locationSharingDuration || 60;
+      document.getElementById('duration-value').textContent = `${shareDuration.value} min`;
+    }
+  }
+
+  function saveSettings() {
+    const s = StorageService.load(StorageService.KEYS.SETTINGS, {});
+    const callerName = document.getElementById('setting-caller-name');
+    const callDelay = document.getElementById('setting-call-delay');
+    const shareDuration = document.getElementById('setting-share-duration');
+
+    if (callerName) s.fakeCallName = callerName.value.trim() || 'Mom';
+    if (callDelay) s.fakeCallDelay = parseInt(callDelay.value, 10);
+    if (shareDuration) s.locationSharingDuration = parseInt(shareDuration.value, 10);
+
+    StorageService.save(StorageService.KEYS.SETTINGS, s);
+  }
+
+  function init() {
+    loadSettings();
+
+    const callDelay = document.getElementById('setting-call-delay');
+    if (callDelay) {
+      callDelay.addEventListener('input', () => {
+        document.getElementById('delay-value').textContent = `${callDelay.value}s`;
+        saveSettings();
+      });
+    }
+
+    const shareDuration = document.getElementById('setting-share-duration');
+    if (shareDuration) {
+      shareDuration.addEventListener('input', () => {
+        document.getElementById('duration-value').textContent = `${shareDuration.value} min`;
+        saveSettings();
+      });
+    }
+
+    const callerName = document.getElementById('setting-caller-name');
+    if (callerName) {
+      callerName.addEventListener('input', saveSettings);
+    }
+
+    document.getElementById('btn-clear-data').addEventListener('click', () => {
+      if (confirm('Clear all SafeHer data? This cannot be undone.')) {
+        Object.values(StorageService.KEYS).forEach(k => StorageService.remove(k));
+        StorageService.remove('safeher_first_launch_done');
+        showToast('All data cleared', 'info');
+        loadSettings();
+        ContactsUI.renderContacts();
+      }
+    });
+  }
+
+  return { init, loadSettings, saveSettings };
+})();
+
+// ============================================================
+// MAIN WIRING — DOMContentLoaded
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // --- Router wiring ---
+  document.getElementById('btn-nav-contacts').addEventListener('click', () => {
+    ContactsUI.renderContacts();
+    Router.showScreen('screen-contacts');
+  });
+  document.getElementById('btn-nav-settings').addEventListener('click', () => {
+    SettingsUI.loadSettings();
+    Router.showScreen('screen-settings');
+  });
+  document.getElementById('btn-contacts-back').addEventListener('click', () => Router.showScreen('screen-main'));
+  document.getElementById('btn-settings-back').addEventListener('click', () => Router.showScreen('screen-main'));
+  document.getElementById('banner-settings-link').addEventListener('click', e => {
+    e.preventDefault();
+    SettingsUI.loadSettings();
+    Router.showScreen('screen-settings');
+  });
+
+  // --- Emergency Alert button ---
+  document.getElementById('btn-emergency').addEventListener('click', async () => {
+    const contacts = ContactsManager.getContacts();
+    if (contacts.length === 0) {
+      document.getElementById('modal-no-contacts').classList.add('visible');
+      return;
+    }
+    const btn = document.getElementById('btn-emergency');
+    btn.style.opacity = '0.6';
+    btn.querySelector('.btn-label').textContent = 'Sending...';
+
+    try {
+      const result = await EmergencyAlert.triggerAlert();
+      btn.style.opacity = '';
+      btn.querySelector('.btn-label').textContent = 'Emergency Alert';
+
+      if (result.error === 'no_contacts') {
+        document.getElementById('modal-no-contacts').classList.add('visible');
+        return;
+      }
+
+      // Show result modal
+      const locEl = document.getElementById('modal-alert-location');
+      if (result.location) {
+        locEl.textContent = `📍 Location: ${result.location.lat.toFixed(5)}, ${result.location.lng.toFixed(5)}${result.locationStale ? ' (may be outdated)' : ''}`;
+      } else {
+        locEl.textContent = '📍 Location unavailable';
+      }
+
+      const deliveriesEl = document.getElementById('modal-alert-deliveries');
+      const allContacts = ContactsManager.getContacts();
+      deliveriesEl.innerHTML = result.deliveries.map(d => {
+        const c = allContacts.find(x => x.id === d.contactId);
+        const name = c ? c.name : 'Unknown';
+        const icon = d.status === 'sent' ? '✓' : '✗';
+        const cls = d.status === 'sent' ? 'sent' : 'failed';
+        return `<div class="delivery-item">
+          <span class="delivery-icon">${d.status === 'sent' ? '✅' : '❌'}</span>
+          <span class="delivery-name">${name}</span>
+          <span class="delivery-status ${cls}">${icon} ${d.status}</span>
+        </div>`;
+      }).join('');
+
+      document.getElementById('modal-alert-result').classList.add('visible');
+
+      // System notification
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification('SafeHer — Alert Sent', {
+            body: `Emergency alert dispatched to ${result.deliveries.filter(d=>d.status==='sent').length} contact(s)`,
+            tag: 'safeher-alert-confirm'
+          });
+        } catch(e) {}
+      }
+    } catch (e) {
+      btn.style.opacity = '';
+      btn.querySelector('.btn-label').textContent = 'Emergency Alert';
+      showToast('Alert failed: ' + e.message, 'error');
+    }
+  });
+
+  // No contacts modal
+  document.getElementById('modal-nocontacts-close').addEventListener('click', () => {
+    document.getElementById('modal-no-contacts').classList.remove('visible');
+  });
+  document.getElementById('modal-nocontacts-add').addEventListener('click', () => {
+    document.getElementById('modal-no-contacts').classList.remove('visible');
+    ContactsUI.renderContacts();
+    Router.showScreen('screen-contacts');
+  });
+
+  // Alert result modal
+  document.getElementById('modal-alert-close').addEventListener('click', () => {
+    document.getElementById('modal-alert-result').classList.remove('visible');
+  });
+
+  // SMS preview modal
+  document.getElementById('modal-sms-close').addEventListener('click', () => {
+    document.getElementById('modal-sms-preview').classList.remove('visible');
+  });
+
+  // --- Share Location button ---
+  document.getElementById('btn-share').addEventListener('click', () => {
+    if (LocationSharing.isActive()) {
+      LocationSharing.stopSharing();
+      showToast('📍 Location sharing stopped', 'info');
+    } else {
+      const settings = StorageService.load(StorageService.KEYS.SETTINGS, {});
+      const durationMin = settings.locationSharingDuration || 60;
+      const durationMs = durationMin * 60 * 1000;
+      try {
+        LocationSharing.startSharing(durationMs);
+        showToast(`📍 Sharing location for ${durationMin} minutes`, 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+  });
+
+  // --- Fake Call button ---
+  document.getElementById('btn-fake-call').addEventListener('click', () => {
+    const settings = StorageService.load(StorageService.KEYS.SETTINGS, {});
+    const delayS = settings.fakeCallDelay !== undefined ? settings.fakeCallDelay : 5;
+    const delayMs = delayS * 1000;
+    try {
+      FakeCall.scheduleFakeCall(delayMs);
+      if (delayS > 0) showToast(`📞 Fake call in ${delayS}s — pocket your phone`, 'info');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  });
+
+  document.getElementById('btn-accept-call').addEventListener('click', () => FakeCall.acceptCall());
+  document.getElementById('btn-decline-call').addEventListener('click', () => FakeCall.declineCall());
+  document.getElementById('btn-end-call').addEventListener('click', () => FakeCall.endCall());
+
+  // --- Shake-to-Alert toggle ---
+  document.getElementById('btn-shake').addEventListener('click', () => {
+    if (ShakeDetector.isEnabled()) {
+      ShakeDetector.disable();
+      showToast('📳 Shake-to-Alert disabled', 'info');
+    } else {
+      ShakeDetector.enable();
+    }
+  });
+
+  // Shake → Emergency Alert
+  ShakeDetector.onShake(async () => {
+    showToast('📳 Shake detected — sending alert!', 'warning', 4000);
+    try {
+      const result = await EmergencyAlert.triggerAlert();
+      if (result.error === 'no_contacts') {
+        showToast('No contacts — add a trusted contact first', 'error');
+      } else {
+        const sent = result.deliveries.filter(d => d.status === 'sent').length;
+        showToast(`🚨 Alert sent to ${sent} contact(s)`, 'success', 4000);
+        if (Notification.permission === 'granted') {
+          try {
+            new Notification('SafeHer — Shake Alert Sent', {
+              body: `Emergency alert dispatched to ${sent} contact(s)`,
+              tag: 'safeher-shake-alert'
+            });
+          } catch(e) {}
+        }
+      }
+    } catch (e) {
+      showToast('Alert failed: ' + e.message, 'error');
+    }
+  });
+
+  // --- Initialize modules ---
+  ShakeDetector.init();
+  ContactsUI.init();
+  SettingsUI.init();
+
+  // Load persisted shake state
+  const settings = StorageService.load(StorageService.KEYS.SETTINGS, {});
+  if (settings.shakeEnabled) {
+    ShakeDetector.enable();
+  }
+
+  // Request notification permission
+  NotificationService.requestPermission();
+
+  // Permissions flow
+  await PermissionsManager.init();
+
+  // Ensure main screen is shown
+  Router.showScreen('screen-main');
+});
+</script>
+</body>
+</html>
